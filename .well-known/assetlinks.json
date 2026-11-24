@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.printprompt.app",
+      "sha256_cert_fingerprints": [
+        "INCOLLA_QUI_IMPRONTA_SHA256_DEBUG",
+        "INCOLLA_QUI_IMPRONTA_SHA256_PLAY"
+      ]
+    }
+  }
+]
