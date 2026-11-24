@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API per i negozi · PrintPrompt</title>
+<meta name="description" content="Manda richieste di stampa 3D ai maker di PrintPrompt dal tuo negozio online o dal tuo gestionale.">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../style.css">
+<style>
+  pre { background: #111; color: #f2f2f2; padding: 14px; border-radius: 12px; overflow-x: auto; font-size: 13px; line-height: 1.45; }
+  code { font-size: 0.92em; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e5d9d9; vertical-align: top; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Vai al contenuto</a>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="../it/index.html"><img src="../icon.svg" alt="" width="32" height="32"><span>PrintPrompt</span></a>
+  </div>
+  <nav class="menu"><a href="../it/index.html">Home</a><a href="#en">English</a></nav>
+</header>
+
+<main id="main" class="page">
+<article class="card prose">
+<h1>API per i negozi</h1>
+<p>Se vendi oggetti stampati in 3D o hai un gestionale, puoi mandare le richieste di stampa ai maker di PrintPrompt in automatico. Le richieste arrivano a tuo nome: le vedi anche nell'app, dove continui a parlare con il maker, accettare l'offerta e seguire la spedizione.</p>
+
+<h2>1. Crea una chiave</h2>
+<p>Nell'app: <b>Profilo → API per negozi → Nuova chiave</b>. La chiave inizia con <code>pp_live_</code> e si vede una volta sola: copiala subito e tienila segreta (chi la ha può mandare richieste a tuo nome). Puoi revocarla quando vuoi.</p>
+
+<h2>2. Indirizzo e accesso</h2>
+<p>Tutte le chiamate vanno a:</p>
+<pre>https://xedohxavgzvzupabnawr.supabase.co/functions/v1/api/v1/…</pre>
+<p>con l'intestazione <code>Authorization: Bearer pp_live_…</code>. Le risposte sono in JSON. Limite: 300 chiamate l'ora per chiave.</p>
+
+<h2>3. Le chiamate</h2>
+<table>
+<tr><th>Metodo e percorso</th><th>A cosa serve</th></tr>
+<tr><td><code>GET /makers/{id}</code></td><td>Stampanti, materiali e consegne di un maker. L'id del maker è nel link del suo profilo (<code>…/m/?id=…</code>).</td></tr>
+<tr><td><code>POST /requests</code></td><td>Nuova richiesta di stampa.</td></tr>
+<tr><td><code>GET /requests</code></td><td>Le tue ultime 100 richieste, con stato, prezzo e data.</td></tr>
+<tr><td><code>GET /requests/{id}</code></td><td>Una richiesta: stato (<code>sent</code>, <code>offered</code>, <code>accepted</code>, <code>printing</code>, <code>ready</code>, <code>completed</code>…), prezzo e data dell'offerta, corriere e codice di spedizione.</td></tr>
+</table>
+
+<h2>Nuova richiesta</h2>
+<pre>curl -X POST "https://xedohxavgzvzupabnawr.supabase.co/functions/v1/api/v1/requests" \
+  -H "Authorization: Bearer pp_live_LA_TUA_CHIAVE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "maker_id": "ID-DEL-MAKER",
+    "material": "PLA",
+    "color": "nero",
+    "quantity": 2,
+    "delivery": "shipping",
+    "file_url": "https://tuo-negozio.it/modelli/staffa.stl",
+    "file_name": "staffa.stl",
+    "notes": "Ordine #1234",
+    "address": { "full_name": "Mario Rossi", "street": "Via Roma 1", "zip": "52100", "city": "Arezzo", "province": "AR", "phone": "" }
+  }'</pre>
+<table>
+<tr><th>Campo</th><th>Note</th></tr>
+<tr><td><code>maker_id</code></td><td>Obbligatorio.</td></tr>
+<tr><td><code>printer_id</code></td><td>Facoltativo: se manca, usiamo la prima stampante del maker che stampa quel materiale.</td></tr>
+<tr><td><code>material</code></td><td>Obbligatorio, uno di quelli del maker (vedi <code>GET /makers/{id}</code>).</td></tr>
+<tr><td><code>quantity</code></td><td>Da 1 a 50.</td></tr>
+<tr><td><code>delivery</code></td><td><code>pickup</code> (ritiro) o <code>shipping</code> (spedizione, serve <code>address</code> con CAP di 5 cifre).</td></tr>
+<tr><td><code>file_url</code> o <code>file_base64</code></td><td>Il file STL (binario o di testo), al massimo 30 MB. Il link deve essere https e pubblico.</td></tr>
+<tr><td><code>notes</code>, <code>color</code>, <code>file_name</code></td><td>Facoltativi.</td></tr>
+</table>
+<p>La risposta (<code>201</code>) contiene l'<code>id</code> della richiesta e le misure lette dal file (volume e ingombro). Il maker riceve un avviso e risponde con prezzo e data: controlla lo stato con <code>GET /requests/{id}</code>, ad esempio ogni ora.</p>
+
+<h2>Errori</h2>
+<p>Gli errori hanno la forma <code>{"error": {"code": "…", "message": "…"}}</code>: <code>401</code> chiave mancante o revocata, <code>400</code> dati o file non validi, <code>422</code> richiesta rifiutata (per esempio materiale non disponibile, oggetti vietati), <code>429</code> troppe chiamate.</p>
+
+<h2>Regole</h2>
+<p>Valgono le stesse condizioni d'uso dell'app: niente armi, parti di armi o oggetti vietati. I pagamenti si accordano con il maker nella chat dell'app.</p>
+
+<h2 id="en">English (short)</h2>
+<p>Create a key in the app (<b>Profile → API for shops</b>), then call <code>https://xedohxavgzvzupabnawr.supabase.co/functions/v1/api/v1/</code> with <code>Authorization: Bearer pp_live_…</code>. Endpoints: <code>GET /makers/{id}</code>, <code>POST /requests</code> (fields as above, STL via <code>file_url</code> or <code>file_base64</code>, max 30 MB), <code>GET /requests</code>, <code>GET /requests/{id}</code>. Limit: 300 calls per hour per key. Requests appear in your account in the app, where you chat with the maker and accept the offer.</p>
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrintPrompt</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script>
+(function () {
+  var supported = ["it", "en", "es"], langs = navigator.languages || [navigator.language || "it"];
+  for (var i = 0; i < langs.length; i++) {
+    var code = String(langs[i]).slice(0, 2).toLowerCase();
+    if (supported.indexOf(code) >= 0) { location.replace(code + "/"); return; }
+  }
+  location.replace("en/");
+})();
+</script>
+</head>
+<body>
+<main class="page center">
+  <img src="icon.svg" alt="" width="72" height="72">
+  <h1>PrintPrompt</h1>
+  <ul class="links"><li><a href="it/" hreflang="it" lang="it">Italiano</a></li><li><a href="en/" hreflang="en" lang="en">English</a></li><li><a href="es/" hreflang="es" lang="es">Español</a></li></ul>
+</main>
+</body>
+</html>

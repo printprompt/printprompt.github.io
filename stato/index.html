@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stato del servizio · PrintPrompt</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; background: #f6f6f6; color: #111; }
+  main { max-width: 620px; margin: 0 auto; padding: 28px 18px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .muted { color: #666; font-size: 14px; }
+  .card { background: #fff; border-radius: 16px; padding: 16px 18px; margin: 14px 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
+  .row:last-child { border-bottom: 0; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #bbb; flex: none; }
+  .ok { background: #1db954; } .warn { background: #f5a623; } .ko { background: #e53935; }
+  .grow { flex: 1; }
+  .big { font-size: 18px; font-weight: 700; }
+  a { color: #111; }
+  @media (prefers-color-scheme: dark) { body { background: #111; color: #eee; } .card { background: #1c1c1c; } .row { border-color: #2a2a2a; } .muted { color: #aaa; } a { color: #eee; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Stato del servizio</h1>
+  <p class="muted">PrintPrompt · si aggiorna da sola ogni minuto · <span id="when"></span></p>
+  <div class="card"><div class="row"><span class="dot" id="all"></span><span class="big grow" id="summary">Controllo…</span></div></div>
+  <div class="card" id="list"></div>
+  <p class="muted">Se qualcosa è rosso da più di qualche minuto scrivici dalla Guida dell'app. <a href="../app/">Apri PrintPrompt</a></p>
+</main>
+<script type="module">
+import { SUPABASE_URL, SUPABASE_KEY } from "../app/config.js";
+
+const CHECKS = [
+  { name: "Database e accesso", run: async () => {
+      const t = performance.now();
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/service_status`, {
+        method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" }, body: "{}" });
+      if (!r.ok) throw new Error("errore " + r.status);
+      const s = await r.json();
+      window.__status = s;
+      return { ok: true, note: `${Math.round(performance.now() - t)} ms · ${s.makers_active} maker attivi · ${s.requests_24h} richieste nelle ultime 24 ore` };
+  } },
+  { name: "Avvisi automatici (ogni 15 minuti)", run: async () => {
+      const s = window.__status;
+      if (!s) throw new Error("database non raggiungibile");
+      if (!s.cron_at) return { warn: true, note: "nessun giro registrato ancora (serve 23_lotto3.sql e il pg_cron attivo)" };
+      const min = Math.round((Date.now() - new Date(s.cron_at).getTime()) / 60000);
+      return min <= 20 ? { ok: true, note: `ultimo giro ${min} min fa` } : { warn: true, note: `ultimo giro ${min} min fa` };
+  } },
+  { name: "Notifiche", run: () => ping("push") },
+  { name: "Assistente AI (modelli 3D)", run: () => ping("ai-model") },
+  { name: "Assistente AI (aiuti)", run: () => ping("ai-assist") },
+  { name: "Foto e file", run: async () => {
+      await fetch(`${SUPABASE_URL}/storage/v1/object/public/printer-photos/`, { mode: "no-cors" });
+      return { ok: true, note: "raggiungibile" };
+  } },
+];
+
+async function ping(fn) {
+  // basta sapere che il server risponde (la risposta vera richiede l'accesso)
+  const t = performance.now();
+  await fetch(`${SUPABASE_URL}/functions/v1/${fn}`, { mode: "no-cors" });
+  return { ok: true, note: `raggiungibile · ${Math.round(performance.now() - t)} ms` };
+}
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+async function check() {
+  const out = [];
+  for (const c of CHECKS) {
+    let res;
+    try { res = await c.run(); } catch (e) { res = { ko: true, note: String(e.message || e) }; }
+    out.push({ name: c.name, ...res });
+  }
+  document.getElementById("list").innerHTML = out.map((o) =>
+    `<div class="row"><span class="dot ${o.ko ? "ko" : o.warn ? "warn" : "ok"}"></span><span class="grow">${esc(o.name)}</span><span class="muted">${esc(o.note || "")}</span></div>`).join("");
+  const bad = out.filter((o) => o.ko).length, warn = out.filter((o) => o.warn).length;
+  document.getElementById("all").className = "dot " + (bad ? "ko" : warn ? "warn" : "ok");
+  document.getElementById("summary").textContent = bad ? "Ci sono problemi" : warn ? "Funziona, con qualche avviso" : "Tutto funziona";
+  document.getElementById("when").textContent = "ultimo controllo " + new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+}
+check();
+setInterval(check, 60000);
+</script>
+</body>
+</html>

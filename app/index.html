@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PrintPrompt – Stampa 3D vicino a te</title>
+<meta name="description" content="Trova chi stampa in 3D vicino a te, guarda vetrine e recensioni, scrivi ai maker.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/"><img src="../icon.svg" alt="" width="28" height="28"><span>PrintPrompt</span></a>
+  <nav>
+    <a href="#/" data-nav="explore">Esplora</a>
+    <a href="#/cerca" data-nav="search">Cerca</a>
+    <a href="#/richieste" data-nav="requests">Le mie chat</a>
+    <a href="#/accedi" id="nav-account" data-nav="account">Accedi</a>
+  </nav>
+</header>
+<main id="view" aria-live="polite"></main>
+<div id="toast" role="status" hidden></div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script type="module" src="app.js"></script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});</script>
+</body>
+</html>

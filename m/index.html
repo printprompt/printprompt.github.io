@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrintPrompt</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top"><div class="bar"><a class="brand" href="../"><img src="../icon.svg" alt="" width="32" height="32"><span>PrintPrompt</span></a></div></header>
+<main id="main" class="page">
+  <article class="card prose maker">
+    <h1 id="h"></h1>
+    <p id="p"></p>
+    <div id="ok">
+      <p><a class="btn" id="open" href="#"></a></p>
+      <p><a class="btn ghost" id="web" href="#"></a></p>
+      <p id="noapp" class="small"></p>
+      <p class="row">
+        <button class="btn ghost" id="copy" type="button"></button>
+        <a class="btn ghost" id="get" href="https://play.google.com/store/apps/details?id=com.printprompt.app"></a>
+      </p>
+      <p id="beta" class="small"></p>
+    </div>
+    <p id="bad" class="warn" hidden></p>
+  </article>
+</main>
+<script>
+(function () {
+  var T = {"it": {"m_title": "Profilo maker su PrintPrompt", "m_h": "Apri il profilo nell'app", "m_p": "Questo link porta al profilo di un maker su PrintPrompt, l'app per trovare chi stampa in 3D vicino a te.", "m_open": "Apri nell'app", "m_no_app": "Non si apre niente? Installa PrintPrompt e tocca di nuovo il link. Oppure copia il link e incollalo nella ricerca di Esplora.", "m_copy": "Copia il link", "m_copied": "Link copiato", "m_bad": "Questo link non è completo: chiedi a chi te l'ha mandato di condividerlo di nuovo.", "get_app": "Scarica l'app", "beta_note": "PrintPrompt è per Android ed è in fase di prova: per ora la possono scaricare solo i tester."}, "en": {"m_title": "Maker profile on PrintPrompt", "m_h": "Open the profile in the app", "m_p": "This link leads to a maker's profile on PrintPrompt, the app for finding people who 3D print near you.", "m_open": "Open in the app", "m_no_app": "Nothing opens? Install PrintPrompt and tap the link again. Or copy the link and paste it into the Explore search.", "m_copy": "Copy the link", "m_copied": "Link copied", "m_bad": "This link is incomplete: ask whoever sent it to share it again.", "get_app": "Get the app", "beta_note": "PrintPrompt is for Android and is in beta: for now only testers can download it."}, "es": {"m_title": "Perfil de maker en PrintPrompt", "m_h": "Abre el perfil en la app", "m_p": "Este enlace lleva al perfil de un maker en PrintPrompt, la app para encontrar a quien imprime en 3D cerca de ti.", "m_open": "Abrir en la app", "m_no_app": "¿No se abre nada? Instala PrintPrompt y toca de nuevo el enlace. O copia el enlace y pégalo en la búsqueda de Explorar.", "m_copy": "Copiar el enlace", "m_copied": "Enlace copiado", "m_bad": "Este enlace no está completo: pide a quien te lo mandó que lo comparta de nuevo.", "get_app": "Descarga la app", "beta_note": "PrintPrompt es para Android y está en fase de prueba: por ahora solo pueden descargarla los testers."}};
+  var langs = navigator.languages || [navigator.language || "it"], lang = "en";
+  for (var i = 0; i < langs.length; i++) {
+    var c = String(langs[i]).slice(0, 2).toLowerCase();
+    if (T[c]) { lang = c; break; }
+  }
+  var t = T[lang];
+  document.documentElement.lang = lang;
+  document.title = t.m_title;
+  function set(id, text) { document.getElementById(id).textContent = text; }
+  set("h", t.m_h); set("p", t.m_p); set("open", t.m_open); set("noapp", t.m_no_app);
+  set("copy", t.m_copy); set("get", t.get_app); set("beta", t.beta_note); set("bad", t.m_bad);
+  var id = (new URLSearchParams(location.search).get("id") || "").toLowerCase();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) {
+    document.getElementById("ok").hidden = true;
+    document.getElementById("bad").hidden = false;
+    return;
+  }
+  document.getElementById("open").href = "printprompt://maker/" + id;
+  // Senza app: il profilo completo nella versione web
+  var web = document.getElementById("web");
+  web.href = "../app/#/m/" + id;
+  web.textContent = {it: "Vedi il profilo sul web", en: "See the profile on the web", es: "Ver el perfil en la web"}[lang];
+  document.getElementById("copy").addEventListener("click", function () {
+    var link = location.origin + "/m/?id=" + id, btn = this;
+    function done() { btn.textContent = t.m_copied; }
+    if (navigator.clipboard) navigator.clipboard.writeText(link).then(done, function () { prompt("", link); });
+    else prompt("", link);
+  });
+})();
+</script>
+</body>
+</html>

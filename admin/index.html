@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cruscotto admin · PrintPrompt</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../app/app.css">
+<style>
+  main { max-width: 1100px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 18px; }
+  .tabs button { border: 0; padding: 8px 14px; border-radius: 999px; background: var(--chip); font-weight: 700; cursor: pointer; }
+  .tabs button.on { background: var(--accent); color: var(--on-accent); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .kpi { border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .kpi b { display: block; font-size: 26px; letter-spacing: -0.5px; }
+  .charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .chart svg { width: 100%; height: 150px; display: block; }
+  .chart rect { fill: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; }
+  .scroll { overflow-x: auto; }
+  code { font-size: 12px; word-break: break-all; }
+  .flag { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .flag .grow { min-width: 0; }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="../"><img src="../icon.svg" alt="" width="28" height="28"><span>PrintPrompt · Admin</span></a>
+  <nav><a href="#" id="logout" hidden>Esci</a></nav>
+</header>
+<main id="view" aria-live="polite"><p class="center muted">Carico…</p></main>
+<div id="toast" role="status" hidden></div>
+<script type="module" src="admin.js"></script>
+</body>
+</html>

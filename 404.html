@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrintPrompt</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<script>
+// Link personale dei maker: /nome porta alla loro pagina
+(function () {
+  var p = location.pathname.replace(/^\/+|\/+$/g, "");
+  if (/^[a-z0-9][a-z0-9-]{2,29}$/i.test(p)) location.replace("/app/#/@" + p.toLowerCase());
+})();
+</script>
+</head>
+<body>
+<main class="page center">
+  <img src="/icon.svg" alt="" width="72" height="72">
+  <section lang="it"><h2>Pagina non trovata</h2><p><a href="/it/">Questa pagina non esiste. Torna alla home.</a></p></section><section lang="en"><h2>Page not found</h2><p><a href="/en/">This page doesn&#x27;t exist. Go back to the home page.</a></p></section><section lang="es"><h2>Página no encontrada</h2><p><a href="/es/">Esta página no existe. Vuelve al inicio.</a></p></section>
+</main>
+</body>
+</html>
